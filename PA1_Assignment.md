@@ -114,16 +114,12 @@ We can see from the following plots that on weekdays there is one major peak in 
 but during the weekend there are several peaks throughout the day
 
 ```r
+par(mfrow = c(2, 1))
 # Ave for weekend only
 actw <- filter(act, weekend=="y")
 bydate <- group_by(actw, interval)
 bydate <- summarise(bydate, round(mean(steps), digits=1))
 plot(bydate, type = "l", main = "Average Daily Activity Pattern\nWeekend Days", ylab = "Average Steps", col = "blue")
-```
-
-![](PA1_Assignment_files/figure-html/compare-1.png) 
-
-```r
 print(summary(bydate))
 ```
 
@@ -142,10 +138,10 @@ print(summary(bydate))
 actw <- filter(act, weekend=="n")
 bydate <- group_by(actw, interval)
 bydate <- summarise(bydate, round(mean(steps), digits=1))
-plot(bydate, type = "l", main = "Average Daily Activity Pattern\nNon Weekend Days", ylab = "Average Steps", col = "blue")
+plot(bydate, type = "l", main = "Non Weekend Days", ylab = "Average Steps", col = "blue")
 ```
 
-![](PA1_Assignment_files/figure-html/compare-2.png) 
+![](PA1_Assignment_files/figure-html/compare-1.png) 
 
 ```r
 print(summary(bydate))

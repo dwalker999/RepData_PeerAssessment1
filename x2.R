@@ -1,17 +1,3 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
----
-
-
-## Loading and preprocessing the data
-The data is loaded from the csv file, and two fields are added:
-one for the day of the week and a flag to indicate whether it
-is a weekend day.
-``` {r load, results='hide'}
 library(dplyr)
 actall <- read.csv("activity.csv")
 actall$date <- as.Date(actall$date, format="%Y-%m-%d")
@@ -23,39 +9,25 @@ act <- filter(actall, is.na(steps) == FALSE)
 bydate <- group_by(act, date)
 bydate <- summarize(bydate, sum(steps))
 names(bydate) <- c("date", "totalsteps")
-```
-
-
-
-## What is mean total number of steps taken per day?
- 
-
-``` {r Mean}
+# Histogram without NAs
 hist(bydate$totalsteps, xlab = "Total Steps", main = "Histogram of Total Steps\n(missing data ignored)", col = "red")
 print(summary(bydate$totalsteps))
-#m <- filter(bydate, bydate$averagesteps == max(bydate$averagesteps))
-```
 
-### The mean total number of steps taken per day is: `r as.integer(mean(bydate$totalsteps))` 
-
-
-## What is the average daily activity pattern?
-``` {r daily}
+# Average daily activity pattern
 bydate <- group_by(act, interval)
 bydate <- summarise(bydate, round(mean(steps), digits=1))
 names(bydate) <- c("interval", "averagesteps")
 
 plot(bydate, type = "l", main = "Average Daily Activity Pattern\n(missing data ignored)", ylab = "Average Steps", col = "blue")
-m <- filter(bydate, bydate$averagesteps == max(bydate$averagesteps))
 print(summary(bydate))
-```
-### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?: `r m$interval`
 
+# Interval with the maximum average steps
+print(filter(bydate, bydate$averagesteps == max(bydate$averagesteps)))
+# Count of NA rows
+print(nrow(subset(actall, is.na(actall$steps) == TRUE)))
 
-## Imputing missing values
-Now we replace all NA steps values for each interval with the average with that interval for the 
-data set.
-``` {r Impute}
+# Reconfigure to allow NA rows
+
 act <- actall
 # Replace NA steps with average for that interval across the table
 for(i in unique(act$interval))
@@ -63,15 +35,33 @@ for(i in unique(act$interval))
         x <- filter(act, interval == i & is.na(steps) == FALSE)
         act <- mutate(act, steps = ifelse(is.na(steps) == TRUE & interval == i, round(mean(x$steps), digits=1), steps))
 }
-```
 
+#do it again
 
+bydate <- group_by(act, date)
+bydate <- summarize(bydate, sum(steps))
+names(bydate) <- c("date", "totalsteps")
+# Histogram without NAs
+hist(bydate$totalsteps, xlab = "Total Steps", main = "Histogram of Total Steps", col = "red")
+print(summary(bydate$totalsteps))
+mean(bydate$totalsteps)
 
-## Are there differences in activity patterns between weekdays and weekends?
-We can see from the following plots that on weekdays there is one major peak in the morning,
-but during the weekend there are several peaks throughout the day
-```{r compare}
+# Average daily activity pattern
+bydate <- group_by(act, interval)
+bydate <- summarise(bydate, round(mean(steps), digits=1))
+names(bydate) <- c("interval", "averagesteps")
+
+plot(bydate, type = "l", main = "Average Daily Activity Pattern", ylab = "Average Steps", col = "blue")
+print(summary(bydate))
+
+# Interval with the maximum average steps
+m <- filter(bydate, bydate$averagesteps == max(bydate$averagesteps))
+print(m$interval)
+# Count of NA rows
+print(nrow(subset(act, is.na(act$steps) == TRUE)))
+
 par(mfrow = c(2, 1))
+
 # Ave for weekend only
 actw <- filter(act, weekend=="y")
 bydate <- group_by(actw, interval)
@@ -83,8 +73,7 @@ actw <- filter(act, weekend=="n")
 bydate <- group_by(actw, interval)
 bydate <- summarise(bydate, round(mean(steps), digits=1))
 plot(bydate, type = "l", main = "Non Weekend Days", ylab = "Average Steps", col = "blue")
-
 print(summary(bydate))
-```
+
 
 
