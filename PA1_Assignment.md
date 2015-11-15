@@ -49,6 +49,7 @@ hist(bydate$totalsteps, xlab = "Total Steps", main = "Histogram of Total Steps\n
 ![](PA1_Assignment_files/figure-html/Mean-1.png) 
 
 ```r
+bydateo <- bydate
 print(summary(bydate$totalsteps))
 ```
 
@@ -94,10 +95,13 @@ print(summary(bydate))
 
 
 ## Imputing missing values
+### There are 2304 rows in the table with missing steps value.
+
 Now we replace all NA steps values for each interval with the average with that interval for the 
 data set.
 
 ```r
+acto <- act
 act <- actall
 # Replace NA steps with average for that interval across the table
 for(i in unique(act$interval))
@@ -107,6 +111,55 @@ for(i in unique(act$interval))
 }
 ```
 
+# Compare the graphs between omitting NAs and imuting the missing values
+
+Histogram differences:
+
+
+```r
+bydate <- group_by(act, date)
+bydate <- summarize(bydate, sum(steps))
+names(bydate) <- c("date", "totalsteps")
+par(mfrow = c(2, 1))
+hist(bydate$totalsteps, xlab = "Total Steps", main = "Histogram of Total Steps\n(missing data immuted)", col = "red")
+bydateo <- group_by(acto, date)
+bydateo <- summarize(bydateo, sum(steps))
+names(bydateo) <- c("date", "totalsteps")
+hist(bydateo$totalsteps, xlab = "Total Steps", main = "Histogram of Total Steps\n(missing data ignored)", col = "red")
+```
+
+![](PA1_Assignment_files/figure-html/unnamed-chunk-1-1.png) 
+
+
+### The mean total number of steps taken per day is (top graph): 10766 
+### The mean total number of steps taken per day is (bottom graph): 10766 
+Activity Pattern Differences:
+
+```r
+par(mfrow = c(2, 1))
+bydate <- group_by(act, interval)
+bydate <- summarise(bydate, round(mean(steps), digits=1))
+names(bydate) <- c("interval", "averagesteps")
+
+plot(bydate, type = "l", main = "Average Daily Activity Pattern\n(missing data immuted)", ylab = "Average Steps", col = "blue")
+m <- filter(bydate, bydate$averagesteps == max(bydate$averagesteps))
+bydateo <- group_by(acto, interval)
+bydateo <- summarise(bydateo, round(mean(steps), digits=1))
+names(bydateo) <- c("interval", "averagesteps")
+
+plot(bydateo, type = "l", main = "Average Daily Activity Pattern\n(missing data ignored)", ylab = "Average Steps", col = "blue")
+```
+
+![](PA1_Assignment_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
+mo <- filter(bydateo, bydateo$averagesteps == max(bydateo$averagesteps))
+```
+
+
+The interval with max steps for top graph: 835 vs bottom graph 835
+indicates that with a low frequency of NA steps, ignoring the NA values, or imuting them with the average
+makes no difference in the calculated values when expressing them as integers.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
